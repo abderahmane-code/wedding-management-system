@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Payment{% endblock %}
+{% block page_title %}Payment — {{ payment.amount|floatformat:2 }}{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'payments:update' payment.pk %}" class="btn btn-secondary">Edit</a>
+    <a href="{% url 'payments:delete' payment.pk %}" class="btn btn-danger-ghost">Delete</a>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <dl class="definition-list">
+        <div><dt>Amount</dt><dd>{{ payment.amount|floatformat:2 }}</dd></div>
+        <div><dt>Payment date</dt><dd>{{ payment.payment_date|date:"F j, Y" }}</dd></div>
+        <div><dt>Method</dt><dd>{{ payment.get_method_display }}</dd></div>
+        <div><dt>Wedding</dt><dd><a href="{{ payment.wedding.get_absolute_url }}">{{ payment.wedding.couple }}</a></dd></div>
+        <div><dt>Service</dt><dd>{{ payment.service|default:"—" }}</dd></div>
+        <div><dt>Notes</dt><dd>{{ payment.notes|linebreaksbr|default:"—" }}</dd></div>
+    </dl>
+</div>
+{% endblock %}

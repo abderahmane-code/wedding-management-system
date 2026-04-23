@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Services{% endblock %}
+{% block page_title %}Services{% endblock %}
+{% block page_actions %}<a class="btn btn-primary" href="{% url 'services:create' %}">+ New Service</a>{% endblock %}
+
+{% block content %}
+<form class="filter-bar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search name, provider, notes" class="form-control">
+    <select name="category" class="form-select">
+        <option value="">All categories</option>
+        {% for value, label in category_choices %}<option value="{{ value }}" {% if category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <select name="status" class="form-select">
+        <option value="">All statuses</option>
+        {% for value, label in status_choices %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-secondary">Filter</button>
+</form>
+
+<div class="panel">
+    {% if services %}
+    <table class="data-table">
+        <thead><tr><th>Name</th><th>Category</th><th>Wedding</th><th>Provider</th><th>Status</th><th class="text-right">Price</th><th></th></tr></thead>
+        <tbody>
+            {% for s in services %}
+            <tr>
+                <td><a href="{{ s.get_absolute_url }}">{{ s.name }}</a></td>
+                <td>{{ s.get_category_display }}</td>
+                <td><a href="{{ s.wedding.get_absolute_url }}">{{ s.wedding.couple }}</a></td>
+                <td>{{ s.provider|default:"—" }}</td>
+                <td><span class="badge badge-{{ s.status }}">{{ s.get_status_display }}</span></td>
+                <td class="text-right">{{ s.price|floatformat:2 }}</td>
+                <td class="text-right actions">
+                    <a class="btn btn-sm btn-ghost" href="{% url 'services:update' s.pk %}">Edit</a>
+                    <a class="btn btn-sm btn-danger-ghost" href="{% url 'services:delete' s.pk %}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}<p class="empty-state">No services found. <a href="{% url 'services:create' %}">Add one now</a>.</p>{% endif %}
+</div>
+
+{% include "includes/pagination.html" %}
+{% endblock %}

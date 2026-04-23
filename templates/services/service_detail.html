@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ service.name }}{% endblock %}
+{% block page_title %}{{ service.name }}{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'services:update' service.pk %}" class="btn btn-secondary">Edit</a>
+    <a href="{% url 'services:delete' service.pk %}" class="btn btn-danger-ghost">Delete</a>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <dl class="definition-list">
+        <div><dt>Name</dt><dd>{{ service.name }}</dd></div>
+        <div><dt>Category</dt><dd>{{ service.get_category_display }}</dd></div>
+        <div><dt>Wedding</dt><dd><a href="{{ service.wedding.get_absolute_url }}">{{ service.wedding.couple }}</a></dd></div>
+        <div><dt>Provider</dt><dd>{{ service.provider|default:"—" }}</dd></div>
+        <div><dt>Status</dt><dd><span class="badge badge-{{ service.status }}">{{ service.get_status_display }}</span></dd></div>
+        <div><dt>Price</dt><dd>{{ service.price|floatformat:2 }}</dd></div>
+        <div><dt>Notes</dt><dd>{{ service.notes|linebreaksbr|default:"—" }}</dd></div>
+    </dl>
+</div>
+{% endblock %}

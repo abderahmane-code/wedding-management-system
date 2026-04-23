@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Weddings{% endblock %}
+{% block page_title %}Weddings{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'weddings:create' %}" class="btn btn-primary">+ New Wedding</a>
+{% endblock %}
+
+{% block content %}
+<form class="filter-bar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search by bride, groom, or location" class="form-control">
+    <select name="status" class="form-select">
+        <option value="">All statuses</option>
+        {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn btn-secondary" type="submit">Filter</button>
+</form>
+
+<div class="panel">
+    {% if weddings %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Couple</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th class="text-right">Budget</th>
+                <th class="text-right">Paid</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for w in weddings %}
+            <tr>
+                <td><a href="{{ w.get_absolute_url }}"><strong>{{ w.couple }}</strong></a></td>
+                <td>{{ w.wedding_date|date:"M d, Y" }}</td>
+                <td>{{ w.location }}</td>
+                <td><span class="badge badge-{{ w.status }}">{{ w.get_status_display }}</span></td>
+                <td class="text-right">{{ w.total_budget|floatformat:2 }}</td>
+                <td class="text-right">{{ w.total_paid|floatformat:2 }}</td>
+                <td class="text-right actions">
+                    <a class="btn btn-sm btn-ghost" href="{% url 'weddings:update' w.pk %}">Edit</a>
+                    <a class="btn btn-sm btn-danger-ghost" href="{% url 'weddings:delete' w.pk %}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="empty-state">No weddings found. <a href="{% url 'weddings:create' %}">Add one now</a>.</p>
+    {% endif %}
+</div>
+
+{% include "includes/pagination.html" %}
+{% endblock %}

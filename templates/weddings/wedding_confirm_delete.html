@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Delete {{ object.couple }}{% endblock %}
+{% block page_title %}Delete wedding{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <p>Are you sure you want to delete <strong>{{ object.couple }}</strong> scheduled for {{ object.wedding_date|date:"M d, Y" }}?</p>
+    <p class="muted">This will also remove related clients, guests, services, payments and planning events.</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-actions">
+            <a href="{{ object.get_absolute_url }}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

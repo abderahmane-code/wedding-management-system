@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Wedding Management{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'weddings:create' %}" class="btn btn-primary">+ New Wedding</a>
+{% endblock %}
+
+{% block content %}
+<section class="card-grid">
+    <div class="stat-card stat-card--pink">
+        <div class="stat-label">Total Weddings</div>
+        <div class="stat-value">{{ total_weddings }}</div>
+        <a class="stat-link" href="{% url 'weddings:list' %}">View all &rarr;</a>
+    </div>
+    <div class="stat-card stat-card--rose">
+        <div class="stat-label">Total Clients</div>
+        <div class="stat-value">{{ total_clients }}</div>
+        <a class="stat-link" href="{% url 'clients:list' %}">View all &rarr;</a>
+    </div>
+    <div class="stat-card stat-card--gold">
+        <div class="stat-label">Total Guests</div>
+        <div class="stat-value">{{ total_guests }}</div>
+        <small>{{ guests_confirmed }} confirmed · {{ guests_pending }} pending</small>
+    </div>
+    <div class="stat-card stat-card--cream">
+        <div class="stat-label">Total Services</div>
+        <div class="stat-value">{{ total_services }}</div>
+        <a class="stat-link" href="{% url 'services:list' %}">View all &rarr;</a>
+    </div>
+    <div class="stat-card stat-card--sage">
+        <div class="stat-label">Total Payments</div>
+        <div class="stat-value">{{ total_payments }}</div>
+        <small>{{ payments_total_amount|floatformat:2 }} collected</small>
+    </div>
+    <div class="stat-card stat-card--plum">
+        <div class="stat-label">Budget Overview</div>
+        <div class="stat-value">{{ budgets_total_amount|floatformat:2 }}</div>
+        <small>Remaining: {{ remaining_amount|floatformat:2 }}</small>
+    </div>
+</section>
+
+<section class="dashboard-grid">
+    <div class="panel">
+        <div class="panel-header">
+            <h2>Upcoming weddings</h2>
+            <a href="{% url 'weddings:list' %}" class="panel-link">See all</a>
+        </div>
+        {% if upcoming_weddings %}
+            <table class="data-table">
+                <thead><tr><th>Couple</th><th>Date</th><th>Location</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for w in upcoming_weddings %}
+                    <tr>
+                        <td><a href="{{ w.get_absolute_url }}">{{ w.couple }}</a></td>
+                        <td>{{ w.wedding_date|date:"M d, Y" }}</td>
+                        <td>{{ w.location }}</td>
+                        <td><span class="badge badge-{{ w.status }}">{{ w.get_status_display }}</span></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="empty-state">No upcoming weddings yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">
+            <h2>Upcoming events</h2>
+            <a href="{% url 'planning:list' %}" class="panel-link">See all</a>
+        </div>
+        {% if upcoming_events %}
+            <ul class="timeline">
+            {% for e in upcoming_events %}
+                <li>
+                    <div class="timeline-date">
+                        <span class="timeline-day">{{ e.date|date:"d" }}</span>
+                        <span class="timeline-month">{{ e.date|date:"M" }}</span>
+                    </div>
+                    <div class="timeline-body">
+                        <a href="{{ e.get_absolute_url }}"><strong>{{ e.title }}</strong></a>
+                        <div class="timeline-meta">
+                            {% if e.time %}{{ e.time|time:"H:i" }} · {% endif %}
+                            {{ e.location|default:"—" }} · {{ e.wedding.couple }}
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-state">No upcoming events scheduled.</p>
+        {% endif %}
+    </div>
+
+    <div class="panel panel-wide">
+        <div class="panel-header">
+            <h2>Recent payments</h2>
+            <a href="{% url 'payments:list' %}" class="panel-link">See all</a>
+        </div>
+        {% if recent_payments %}
+            <table class="data-table">
+                <thead><tr><th>Date</th><th>Wedding</th><th>Service</th><th>Method</th><th class="text-right">Amount</th></tr></thead>
+                <tbody>
+                {% for p in recent_payments %}
+                    <tr>
+                        <td>{{ p.payment_date|date:"M d, Y" }}</td>
+                        <td><a href="{{ p.wedding.get_absolute_url }}">{{ p.wedding.couple }}</a></td>
+                        <td>{{ p.service|default:"—" }}</td>
+                        <td>{{ p.get_method_display }}</td>
+                        <td class="text-right"><strong>{{ p.amount|floatformat:2 }}</strong></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="empty-state">No payments recorded yet.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

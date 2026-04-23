@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Guests{% endblock %}
+{% block page_title %}Guests{% endblock %}
+{% block page_actions %}<a class="btn btn-primary" href="{% url 'guests:create' %}">+ New Guest</a>{% endblock %}
+
+{% block content %}
+<form class="filter-bar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search name, phone, email" class="form-control">
+    <select name="rsvp" class="form-select">
+        <option value="">All RSVPs</option>
+        {% for value, label in rsvp_choices %}<option value="{{ value }}" {% if rsvp == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-secondary">Filter</button>
+</form>
+
+<div class="panel">
+    {% if guests %}
+    <table class="data-table">
+        <thead><tr><th>Name</th><th>RSVP</th><th>Plus ones</th><th>Wedding</th><th>Phone</th><th></th></tr></thead>
+        <tbody>
+            {% for g in guests %}
+            <tr>
+                <td><a href="{{ g.get_absolute_url }}">{{ g.full_name }}</a></td>
+                <td><span class="badge badge-rsvp-{{ g.rsvp_status }}">{{ g.get_rsvp_status_display }}</span></td>
+                <td>{{ g.plus_ones }}</td>
+                <td><a href="{{ g.wedding.get_absolute_url }}">{{ g.wedding.couple }}</a></td>
+                <td>{{ g.phone|default:"—" }}</td>
+                <td class="text-right actions">
+                    <a class="btn btn-sm btn-ghost" href="{% url 'guests:update' g.pk %}">Edit</a>
+                    <a class="btn btn-sm btn-danger-ghost" href="{% url 'guests:delete' g.pk %}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}<p class="empty-state">No guests found. <a href="{% url 'guests:create' %}">Add one now</a>.</p>{% endif %}
+</div>
+
+{% include "includes/pagination.html" %}
+{% endblock %}
