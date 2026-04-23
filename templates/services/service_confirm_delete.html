@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Delete service{% endblock %}
+{% block page_title %}Delete service{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <p>Delete service <strong>{{ object.name }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-actions">
+            <a href="{% url 'services:list' %}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

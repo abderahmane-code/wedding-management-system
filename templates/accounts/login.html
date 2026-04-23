@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}Sign in — Wedding Management{% endblock %}
+
+{% block auth_content %}
+<div class="auth-card">
+    <div class="auth-header">
+        <span class="brand-mark">&#10084;</span>
+        <h1>Wedding Management</h1>
+        <p>Sign in to manage your weddings, clients and events.</p>
+    </div>
+    <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        <div class="form-group">
+            <label for="id_username">Username</label>
+            {{ form.username|add_class:"form-control"|attr:"autocomplete:username"|attr:"autofocus" }}
+            {{ form.username.errors }}
+        </div>
+        <div class="form-group">
+            <label for="id_password">Password</label>
+            {{ form.password|add_class:"form-control"|attr:"autocomplete:current-password" }}
+            {{ form.password.errors }}
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+    </form>
+    <p class="auth-footnote">
+        Need access? Ask an administrator to create an account for you.
+    </p>
+</div>
+{% endblock %}

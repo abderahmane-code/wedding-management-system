@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block page_title %}{{ event.title }}{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'planning:update' event.pk %}" class="btn btn-secondary">Edit</a>
+    <a href="{% url 'planning:delete' event.pk %}" class="btn btn-danger-ghost">Delete</a>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <dl class="definition-list">
+        <div><dt>Title</dt><dd>{{ event.title }}</dd></div>
+        <div><dt>Wedding</dt><dd><a href="{{ event.wedding.get_absolute_url }}">{{ event.wedding.couple }}</a></dd></div>
+        <div><dt>Date</dt><dd>{{ event.date|date:"l, F j, Y" }}</dd></div>
+        <div><dt>Time</dt><dd>{{ event.time|time:"H:i"|default:"—" }}</dd></div>
+        <div><dt>Location</dt><dd>{{ event.location|default:"—" }}</dd></div>
+        <div><dt>Notes</dt><dd>{{ event.notes|linebreaksbr|default:"—" }}</dd></div>
+    </dl>
+</div>
+{% endblock %}

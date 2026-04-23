@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ guest.full_name }}{% endblock %}
+{% block page_title %}{{ guest.full_name }}{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'guests:update' guest.pk %}" class="btn btn-secondary">Edit</a>
+    <a href="{% url 'guests:delete' guest.pk %}" class="btn btn-danger-ghost">Delete</a>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <dl class="definition-list">
+        <div><dt>Name</dt><dd>{{ guest.full_name }}</dd></div>
+        <div><dt>RSVP</dt><dd><span class="badge badge-rsvp-{{ guest.rsvp_status }}">{{ guest.get_rsvp_status_display }}</span></dd></div>
+        <div><dt>Plus ones</dt><dd>{{ guest.plus_ones }}</dd></div>
+        <div><dt>Wedding</dt><dd><a href="{{ guest.wedding.get_absolute_url }}">{{ guest.wedding.couple }}</a></dd></div>
+        <div><dt>Phone</dt><dd>{{ guest.phone|default:"—" }}</dd></div>
+        <div><dt>Email</dt><dd>{{ guest.email|default:"—" }}</dd></div>
+        <div><dt>Notes</dt><dd>{{ guest.notes|linebreaksbr|default:"—" }}</dd></div>
+    </dl>
+</div>
+{% endblock %}

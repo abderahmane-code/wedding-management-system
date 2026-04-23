@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Planning{% endblock %}
+{% block page_title %}Planning & Schedule{% endblock %}
+{% block page_actions %}<a class="btn btn-primary" href="{% url 'planning:create' %}">+ New Event</a>{% endblock %}
+
+{% block content %}
+<form class="filter-bar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search title, location, notes" class="form-control">
+    <button class="btn btn-secondary">Filter</button>
+</form>
+
+<div class="panel">
+    {% if events %}
+    <table class="data-table">
+        <thead><tr><th>Title</th><th>Date</th><th>Time</th><th>Location</th><th>Wedding</th><th></th></tr></thead>
+        <tbody>
+            {% for e in events %}
+            <tr>
+                <td><a href="{{ e.get_absolute_url }}">{{ e.title }}</a></td>
+                <td>{{ e.date|date:"M d, Y" }}</td>
+                <td>{{ e.time|time:"H:i"|default:"—" }}</td>
+                <td>{{ e.location|default:"—" }}</td>
+                <td><a href="{{ e.wedding.get_absolute_url }}">{{ e.wedding.couple }}</a></td>
+                <td class="text-right actions">
+                    <a class="btn btn-sm btn-ghost" href="{% url 'planning:update' e.pk %}">Edit</a>
+                    <a class="btn btn-sm btn-danger-ghost" href="{% url 'planning:delete' e.pk %}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}<p class="empty-state">No events scheduled. <a href="{% url 'planning:create' %}">Add one now</a>.</p>{% endif %}
+</div>
+
+{% include "includes/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit {{ object.couple }}{% else %}New wedding{% endif %}{% endblock %}
+{% block page_title %}{% if object %}Edit wedding{% else %}New wedding{% endif %}{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% include "includes/form_fields.html" %}
+        <div class="form-actions">
+            <a href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'weddings:list' %}{% endif %}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save wedding</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

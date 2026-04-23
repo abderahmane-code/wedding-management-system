@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Clients{% endblock %}
+{% block page_title %}Clients{% endblock %}
+{% block page_actions %}<a class="btn btn-primary" href="{% url 'clients:create' %}">+ New Client</a>{% endblock %}
+
+{% block content %}
+<form class="filter-bar" method="get">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search name, phone, email" class="form-control">
+    <button class="btn btn-secondary">Filter</button>
+</form>
+
+<div class="panel">
+    {% if clients %}
+    <table class="data-table">
+        <thead><tr><th>Name</th><th>Role</th><th>Wedding</th><th>Phone</th><th>Email</th><th></th></tr></thead>
+        <tbody>
+            {% for c in clients %}
+            <tr>
+                <td><a href="{{ c.get_absolute_url }}">{{ c.full_name }}</a></td>
+                <td>{{ c.get_role_display }}</td>
+                <td><a href="{{ c.wedding.get_absolute_url }}">{{ c.wedding.couple }}</a></td>
+                <td>{{ c.phone|default:"—" }}</td>
+                <td>{{ c.email|default:"—" }}</td>
+                <td class="text-right actions">
+                    <a class="btn btn-sm btn-ghost" href="{% url 'clients:update' c.pk %}">Edit</a>
+                    <a class="btn btn-sm btn-danger-ghost" href="{% url 'clients:delete' c.pk %}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="empty-state">No clients found. <a href="{% url 'clients:create' %}">Add one now</a>.</p>
+    {% endif %}
+</div>
+
+{% include "includes/pagination.html" %}
+{% endblock %}

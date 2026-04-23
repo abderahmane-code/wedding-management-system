@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Payments{% endblock %}
+{% block page_title %}Payments{% endblock %}
+{% block page_actions %}<a class="btn btn-primary" href="{% url 'payments:create' %}">+ Record Payment</a>{% endblock %}
+
+{% block content %}
+<form class="filter-bar" method="get">
+    <select name="method" class="form-select">
+        <option value="">All methods</option>
+        {% for value, label in method_choices %}<option value="{{ value }}" {% if method == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-secondary">Filter</button>
+    <div class="filter-total">Total: <strong>{{ total_amount|floatformat:2 }}</strong></div>
+</form>
+
+<div class="panel">
+    {% if payments %}
+    <table class="data-table">
+        <thead><tr><th>Date</th><th>Wedding</th><th>Service</th><th>Method</th><th class="text-right">Amount</th><th></th></tr></thead>
+        <tbody>
+            {% for p in payments %}
+            <tr>
+                <td>{{ p.payment_date|date:"M d, Y" }}</td>
+                <td><a href="{{ p.wedding.get_absolute_url }}">{{ p.wedding.couple }}</a></td>
+                <td>{{ p.service|default:"—" }}</td>
+                <td>{{ p.get_method_display }}</td>
+                <td class="text-right"><strong>{{ p.amount|floatformat:2 }}</strong></td>
+                <td class="text-right actions">
+                    <a class="btn btn-sm btn-ghost" href="{% url 'payments:update' p.pk %}">Edit</a>
+                    <a class="btn btn-sm btn-danger-ghost" href="{% url 'payments:delete' p.pk %}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}<p class="empty-state">No payments recorded. <a href="{% url 'payments:create' %}">Record one now</a>.</p>{% endif %}
+</div>
+
+{% include "includes/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit payment{% else %}New payment{% endif %}{% endblock %}
+{% block page_title %}{% if object %}Edit payment{% else %}Record payment{% endif %}{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% include "includes/form_fields.html" %}
+        <div class="form-actions">
+            <a href="{% url 'payments:list' %}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save payment</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

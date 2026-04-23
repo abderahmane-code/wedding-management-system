@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Delete payment{% endblock %}
+{% block page_title %}Delete payment{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <p>Delete payment of <strong>{{ object.amount|floatformat:2 }}</strong> on {{ object.payment_date|date:"M d, Y" }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-actions">
+            <a href="{% url 'payments:list' %}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

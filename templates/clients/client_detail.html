@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ client.full_name }}{% endblock %}
+{% block page_title %}{{ client.full_name }}{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'clients:update' client.pk %}" class="btn btn-secondary">Edit</a>
+    <a href="{% url 'clients:delete' client.pk %}" class="btn btn-danger-ghost">Delete</a>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <dl class="definition-list">
+        <div><dt>Full name</dt><dd>{{ client.full_name }}</dd></div>
+        <div><dt>Role</dt><dd>{{ client.get_role_display }}</dd></div>
+        <div><dt>Wedding</dt><dd><a href="{{ client.wedding.get_absolute_url }}">{{ client.wedding.couple }}</a></dd></div>
+        <div><dt>Phone</dt><dd>{{ client.phone|default:"—" }}</dd></div>
+        <div><dt>Email</dt><dd>{{ client.email|default:"—" }}</dd></div>
+        <div><dt>Address</dt><dd>{{ client.address|default:"—" }}</dd></div>
+        <div><dt>Notes</dt><dd>{{ client.notes|linebreaksbr|default:"—" }}</dd></div>
+    </dl>
+</div>
+{% endblock %}

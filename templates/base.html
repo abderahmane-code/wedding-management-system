@@ -1,0 +1,87 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Wedding Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% if user.is_authenticated %}
+        <div class="layout">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-brand">
+                    <span class="brand-mark">&#10084;</span>
+                    <div>
+                        <div class="brand-title">Wedding</div>
+                        <div class="brand-subtitle">Management</div>
+                    </div>
+                </div>
+                <nav class="sidebar-nav">
+                    {% for item in sidebar_items %}
+                        <a href="{{ item.url }}"
+                           class="sidebar-link{% if item.match in request.path %} is-active{% endif %}">
+                            <span class="sidebar-icon" data-icon="{{ item.icon }}"></span>
+                            <span>{{ item.label }}</span>
+                        </a>
+                    {% endfor %}
+                </nav>
+                <div class="sidebar-footer">
+                    <div class="user-info">
+                        <span class="user-avatar">{{ user.username|slice:":1"|upper }}</span>
+                        <div>
+                            <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="user-role">{% if user.is_superuser %}Administrator{% else %}Staff{% endif %}</div>
+                        </div>
+                    </div>
+                    <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-ghost btn-block">Sign out</button>
+                    </form>
+                </div>
+            </aside>
+
+            <div class="main">
+                <header class="topbar">
+                    <button type="button" class="sidebar-toggle" aria-label="Toggle navigation" data-toggle-sidebar>&#9776;</button>
+                    <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+                    <div class="topbar-actions">
+                        {% block page_actions %}{% endblock %}
+                    </div>
+                </header>
+
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags|default:'info' }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <main class="content">
+                    {% block content %}{% endblock %}
+                </main>
+            </div>
+        </div>
+    {% else %}
+        <main class="auth-shell">
+            {% if messages %}
+                <div class="messages messages-centered">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% block auth_content %}{% endblock %}
+        </main>
+    {% endif %}
+
+    <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
