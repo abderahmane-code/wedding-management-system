@@ -4,13 +4,13 @@ A full-stack Django + PostgreSQL application for managing weddings end-to-end: c
 
 ## Features
 
-- **Authentication** — admin login/logout, 8-hour secure sessions, `@login_required` on every CRUD page.
+- **Authentication** — admin login/logout, secure sessions, `@login_required` on every CRUD page.
 - **Dashboard** — total weddings, clients, guests, services, payments; global budget overview; upcoming weddings and upcoming planning events; recent payments.
 - **Weddings** — full CRUD (bride / groom / date / location / status / budget / notes).
 - **Clients** — full CRUD, each client linked to a wedding with a role (bride, groom, parent, planner, other).
 - **Guests** — full CRUD with RSVP status (pending / confirmed / absent) and plus-one count.
 - **Services** — full CRUD across categories (venue, catering, decoration, photography, music, other) with status tracking.
-- **Budget & Payments** — total budget per wedding, paid amount, remaining amount, full payment history (add / edit / delete).
+- **Budget & Payments** — per-wedding total budget, paid amount, remaining amount, full payment history.
 - **Planning / Schedule** — per-wedding event list (title, date, time, location, notes).
 - **Admin** — every model registered with list filters, search, autocomplete on FKs, date hierarchies.
 - **UI** — responsive layout, sidebar navigation, dashboard cards, filterable data tables, clean form pages with validation, wedding-themed color palette (blush, rose, cream, gold).
@@ -18,7 +18,7 @@ A full-stack Django + PostgreSQL application for managing weddings end-to-end: c
 ## Tech stack
 
 - Python 3.10+ / Django 5.0
-- PostgreSQL (SQLite fallback available for quick testing via `USE_SQLITE=1`)
+- PostgreSQL (with a SQLite fallback via `USE_SQLITE=1` for quick demos)
 - Django templates + vanilla HTML / CSS / JavaScript
 - `django-widget-tweaks`, `psycopg` (v3), `python-dotenv`
 
@@ -42,13 +42,7 @@ wedding-management-system/
 │   ├── base.html
 │   ├── accounts/login.html
 │   ├── core/dashboard.html
-│   ├── weddings/ …
-│   ├── clients/ …
-│   ├── guests/ …
-│   ├── services/ …
-│   ├── payments/ …
-│   ├── planning/ …
-│   └── includes/           # pagination + form partials
+│   └── <app>/…              # list / form / detail / delete per app
 └── static/
     ├── css/style.css       # Wedding-themed styling
     └── js/app.js           # Sidebar toggle, alert auto-dismiss, confirms
@@ -56,7 +50,7 @@ wedding-management-system/
 
 ## Database schema
 
-All non-user models live in their own app and use Django's ORM. Relationships:
+All non-user models live in their own app and use Django's ORM.
 
 ```
 Wedding (1) ── (N) Client
@@ -66,14 +60,18 @@ Wedding (1) ── (N) Payment ─(N) ── (1) Service   (service is optional)
 Wedding (1) ── (N) PlanningEvent
 ```
 
-Full field list is documented in `<app>/models.py` and visible in `migrations/0001_initial.py`.
+Full field list lives in `<app>/models.py` and `<app>/migrations/0001_initial.py`.
 
-## Step-by-step setup
+---
+
+## Local setup
+
+You only need two things to run the project locally: **Python 3.10+** and **pip**. PostgreSQL is recommended for production-like behavior, but there's a one-flag SQLite fallback if you just want to look around.
 
 ### 1. Clone and enter the project
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/abderahmane-code/wedding-management-system.git
 cd wedding-management-system
 ```
 
@@ -81,31 +79,56 @@ cd wedding-management-system
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 3. Configure environment variables
-
-Copy the example file and edit it:
+### 3. Create your `.env`
 
 ```bash
 cp .env.example .env
-# Open .env and set DJANGO_SECRET_KEY, POSTGRES_* values
 ```
 
-Key variables:
+Open `.env` and set the values you care about. Every key and what it does:
 
-| Variable | Purpose |
-| --- | --- |
-| `DJANGO_SECRET_KEY` | Django secret key (required in production). |
-| `DJANGO_DEBUG` | `True` for dev, `False` for production. |
-| `DJANGO_ALLOWED_HOSTS` | Comma-separated hostnames. |
-| `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` | Database credentials. |
-| `POSTGRES_HOST` / `POSTGRES_PORT` | Defaults to `localhost:5432`. |
-| `USE_SQLITE=1` | Optional: use a local `db.sqlite3` file instead of PostgreSQL (handy for demos). |
+| Variable | Purpose | Required? |
+| --- | --- | --- |
+| `DJANGO_SECRET_KEY` | Secret key for sessions/CSRF. Generate a strong one (see below). | Yes |
+| `DJANGO_DEBUG` | `True` in dev, `False` in production. | Yes |
+| `DJANGO_ALLOWED_HOSTS` | Comma-separated hostnames (`localhost,127.0.0.1` in dev). | Yes |
+| `TIME_ZONE` | IANA zone, e.g. `UTC`, `Africa/Nouakchott`, `Europe/Paris`. | Yes |
+| `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` | Postgres credentials (only used if `USE_SQLITE` is **not** set). | If using Postgres |
+| `POSTGRES_HOST` / `POSTGRES_PORT` | Defaults to `localhost:5432`. | No |
+| `USE_SQLITE` | Set to `1` to bypass Postgres and use a local `db.sqlite3` file. | No |
 
-### 4. Create the PostgreSQL database
+Generate a secret key quickly:
+
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+### 4. Pick a database: PostgreSQL (recommended) **or** SQLite (fast start)
+
+<details open>
+<summary><b>Option A — PostgreSQL (recommended)</b></summary>
+
+**Install PostgreSQL:**
+
+- **Ubuntu / Debian:**
+  ```bash
+  sudo apt-get update
+  sudo apt-get install -y postgresql postgresql-contrib
+  sudo systemctl enable --now postgresql
+  ```
+- **macOS (Homebrew):**
+  ```bash
+  brew install postgresql@16
+  brew services start postgresql@16
+  ```
+- **Windows:** use the installer from <https://www.postgresql.org/download/windows/>.
+
+**Create the database and user** (values must match your `.env`):
 
 ```bash
 sudo -u postgres psql <<'SQL'
@@ -116,7 +139,30 @@ ALTER DATABASE wedding_db OWNER TO wedding_user;
 SQL
 ```
 
-Make sure these match the values in your `.env`.
+> On macOS Homebrew, Postgres runs as your user — drop the `sudo -u postgres` prefix and just run `psql postgres <<'SQL' … SQL`.
+
+**Verify the connection** before running migrations:
+
+```bash
+PGPASSWORD=wedding_password psql -h localhost -U wedding_user -d wedding_db -c '\conninfo'
+```
+
+Leave `USE_SQLITE` **unset** (or commented out) in `.env`.
+
+</details>
+
+<details>
+<summary><b>Option B — SQLite (zero-setup demo)</b></summary>
+
+Add this single line to `.env` and skip the Postgres section entirely:
+
+```env
+USE_SQLITE=1
+```
+
+A `db.sqlite3` file will be created next to `manage.py` automatically on first migration.
+
+</details>
 
 ### 5. Apply migrations
 
@@ -130,45 +176,51 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 7. (Optional) Collect static files
+### 7. Run the dev server
+
+```bash
+python manage.py runserver
+```
+
+Open **<http://127.0.0.1:8000/>**. You'll be redirected to `/accounts/login/` — sign in with your superuser and you'll land on the dashboard.
+
+### 8. (Optional) Collect static files (needed for production)
 
 ```bash
 python manage.py collectstatic --noinput
 ```
 
-### 8. Run the dev server
+---
 
-```bash
-python manage.py runserver
-```
+## Key URLs
 
-Open **http://127.0.0.1:8000/**. You will be redirected to `/accounts/login/`. Sign in with the admin account — you'll land on the dashboard.
+| URL | What it is |
+| --- | --- |
+| `/` | Redirects to dashboard (or login if anonymous) |
+| `/accounts/login/`, `/accounts/logout/` | Auth |
+| `/dashboard/` | Custom dashboard with counts, budget overview, upcoming events, recent payments |
+| `/weddings/`, `/weddings/new/`, `/weddings/<id>/` | Wedding list / create / detail |
+| `/clients/`, `/guests/`, `/services/`, `/payments/`, `/planning/` | Same list / create / detail / edit / delete pattern per app |
+| `/admin/` | Django Admin (every model registered) |
 
-Key URLs:
-
-- `/` — redirects to dashboard or login
-- `/dashboard/` — the custom dashboard
-- `/weddings/`, `/clients/`, `/guests/`, `/services/`, `/payments/`, `/planning/` — module home pages
-- `/admin/` — Django Admin (full access for superusers)
+Deep-link shortcuts used by the wedding detail page: `/services/new/?wedding=<id>`, `/clients/new/?wedding=<id>`, etc. — the wedding is preselected in the form.
 
 ## Development notes
 
 - Form styling is centralized in `core/forms.py` via `StyledModelForm` (applies `form-control` / `form-select` classes automatically).
 - Sidebar navigation is driven by `core.context_processors.sidebar_nav`; add a new module by appending to its items list.
-- Dashboard aggregates are computed with `Sum(...)` on the related managers — see `core/views.py`.
+- Dashboard aggregates use `Count(...)` / `Sum(...)` on the related managers — see `core/views.py`.
+- `Wedding.remaining_amount = total_budget − total_paid` (sum of `Payment.amount`). Services alone do **not** reduce Remaining — only recorded payments do. This matches the "paid vs budget" framing.
 - Role-based access can later be layered on top of `LoginRequiredMixin`: each view already goes through the login wall, so restricting by group/permission is a one-line change per view.
 
-## Running with SQLite (no PostgreSQL needed)
+## Troubleshooting
 
-If you just want to try the app without installing PostgreSQL:
-
-```bash
-cp .env.example .env
-echo "USE_SQLITE=1" >> .env
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-```
+| Symptom | Fix |
+| --- | --- |
+| `django.db.utils.OperationalError: could not connect to server` on `migrate` | Postgres isn't running or credentials don't match `.env`. Either `sudo systemctl start postgresql` (or `brew services start postgresql@16`) and re-check `.env`, or temporarily set `USE_SQLITE=1` in `.env` and retry. |
+| `psycopg.errors.InsufficientPrivilege` on `migrate` | The Postgres user doesn't own the database. Re-run the `ALTER DATABASE … OWNER TO wedding_user;` line from step 4. |
+| CSS looks unstyled after `collectstatic` in production | Make sure `DJANGO_DEBUG=False` triggered `collectstatic` and that the web server is serving `staticfiles/`. |
+| Dashboard shows everything as 0 after data exists | Verify you're logged in as the **same** user who created the records (no RLS, but sanity check); then confirm records actually exist via `/admin/`. |
 
 ## License
 
