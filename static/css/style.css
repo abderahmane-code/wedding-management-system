@@ -600,3 +600,167 @@ textarea.form-control { min-height: 90px; resize: vertical; }
     .content { padding: 16px; }
     .topbar { padding: 12px 16px; }
 }
+
+/* -------- Matchmaking -------- */
+
+.sidebar-section {
+    padding: 18px 22px 6px;
+    color: var(--muted);
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.auth-card-wide { max-width: 480px; }
+.auth-form .form-group + .form-group { margin-top: 14px; }
+.form-help { color: var(--muted); font-size: .78rem; display: block; margin-top: 4px; }
+.field-error { color: #b13742; font-size: .8rem; margin-top: 4px; }
+
+/* Profile cards (Browse + Matches + Detail) */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+}
+.profile-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.profile-card-detail, .profile-card-self { flex-direction: row; gap: 24px; padding: 24px; max-width: 720px; }
+.profile-card-detail .profile-photo, .profile-card-self .profile-photo { width: 160px; height: 160px; flex-shrink: 0; border-radius: 14px; overflow: hidden; }
+.profile-card-browse .profile-photo, .profile-card-match .profile-photo { width: 100%; aspect-ratio: 4 / 3; }
+.profile-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.profile-photo-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, var(--blush) 0%, var(--rose) 100%);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 2.8rem; font-weight: 600;
+    letter-spacing: .05em;
+}
+.profile-photo-placeholder.muted { background: #eee; color: var(--muted); font-size: .9rem; font-family: inherit; font-weight: 500; }
+.profile-body { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.profile-card-detail .profile-body, .profile-card-self .profile-body { padding: 0; }
+.profile-body h2, .profile-body h3 { margin: 0; font-family: "Cormorant Garamond", serif; }
+.profile-body h2 { font-size: 1.8rem; }
+.profile-body h3 { font-size: 1.3rem; }
+.profile-body h3 a { color: inherit; text-decoration: none; }
+.profile-body h3 a:hover { color: var(--rose); }
+.profile-meta { display: flex; gap: 10px; flex-wrap: wrap; color: var(--muted); font-size: .85rem; }
+.profile-meta .muted { font-style: italic; }
+.profile-bio { color: var(--fg); margin: 0; font-size: .92rem; line-height: 1.5; }
+.profile-bio.muted { color: var(--muted); font-style: italic; }
+.profile-actions, .form-actions { display: flex; gap: 10px; margin-top: auto; }
+.profile-actions .btn, .form-actions .btn { flex: 1; }
+.profile-card-detail .form-actions .btn, .profile-card-self .form-actions .btn { flex: 0 0 auto; }
+.profile-privacy {
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 4px 16px; margin: 10px 0 0;
+    font-size: .85rem;
+    color: var(--muted);
+}
+.profile-privacy dt { font-weight: 600; color: var(--fg); }
+.profile-privacy dd { margin: 0; }
+
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+}
+.badge-success { background: var(--sage); color: #2e4b3b; }
+.badge-muted { background: #eee; color: var(--muted); }
+
+/* Edit profile form grid */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.form-group-check { display: flex; flex-direction: row-reverse; align-items: center; justify-content: flex-end; gap: 10px; }
+.form-group-check label { margin: 0; }
+
+.filters { margin-bottom: 18px; }
+.inline-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.inline-form .form-control { max-width: 260px; }
+
+.empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+}
+.empty-state h3 { margin: 0 0 8px; font-family: "Cormorant Garamond", serif; font-size: 1.6rem; }
+
+/* Chat list */
+.chat-list { display: flex; flex-direction: column; gap: 6px; }
+.chat-row {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: background .15s ease;
+}
+.chat-row:hover { background: var(--cream); }
+.chat-row-avatar { width: 64px; height: 64px; border-radius: 999px; overflow: hidden; }
+.chat-row-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.chat-row-head { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 2px; }
+.chat-row-preview { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .88rem; }
+
+/* Chat thread */
+.chat-thread {
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    height: calc(100vh - 160px);
+    max-height: 700px;
+}
+.chat-messages {
+    flex: 1;
+    padding: 18px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--cream);
+}
+.chat-message { display: flex; flex-direction: column; max-width: 70%; }
+.chat-message-self { align-self: flex-end; align-items: flex-end; }
+.chat-message-other { align-self: flex-start; align-items: flex-start; }
+.chat-bubble {
+    padding: 10px 14px;
+    border-radius: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+.chat-message-self .chat-bubble { background: var(--rose); color: #fff; border-bottom-right-radius: 4px; }
+.chat-message-other .chat-bubble { background: #fff; border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+.chat-timestamp { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+.chat-compose {
+    display: flex;
+    gap: 10px;
+    padding: 14px;
+    border-top: 1px solid var(--border);
+    background: var(--card);
+}
+.chat-compose textarea { flex: 1; resize: vertical; }
+
+@media (max-width: 900px) {
+    .profile-card-detail, .profile-card-self { flex-direction: column; }
+    .profile-card-detail .profile-photo, .profile-card-self .profile-photo { width: 100%; height: 220px; }
+    .chat-thread { height: calc(100vh - 200px); }
+}

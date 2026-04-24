@@ -29,6 +29,16 @@
                             <span>{{ item.label }}</span>
                         </a>
                     {% endfor %}
+                    {% if sidebar_matchmaking_items %}
+                        <div class="sidebar-section">Matchmaking</div>
+                        {% for item in sidebar_matchmaking_items %}
+                            <a href="{{ item.url }}"
+                               class="sidebar-link{% if item.match in request.path %} is-active{% endif %}">
+                                <span class="sidebar-icon" data-icon="{{ item.icon }}"></span>
+                                <span>{{ item.label }}</span>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
                 </nav>
                 <div class="sidebar-footer">
                     <div class="user-info">

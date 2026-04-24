@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ other.profile.display_name }}{% endblock %}
+{% block page_title %}{{ other.profile.display_name }}{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'profiles:detail' other.id %}" class="btn btn-ghost">View profile</a>
+    <a href="{% url 'chat:list' %}" class="btn btn-ghost">All chats</a>
+{% endblock %}
+
+{% block content %}
+<section class="chat-thread">
+    <div class="chat-messages" id="chat-messages">
+        {% for m in messages_list %}
+            <div class="chat-message {% if m.sender == request.user %}chat-message-self{% else %}chat-message-other{% endif %}">
+                <div class="chat-bubble">{{ m.content|linebreaksbr }}</div>
+                <div class="chat-timestamp">{{ m.created_at|date:"M j, H:i" }}</div>
+            </div>
+        {% empty %}
+            <div class="empty-state">
+                <p>No messages yet — send the first one.</p>
+            </div>
+        {% endfor %}
+    </div>
+    <form method="post" class="chat-compose">
+        {% csrf_token %}
+        {{ form.content }}
+        {% if form.content.errors %}<div class="field-error">{{ form.content.errors }}</div>{% endif %}
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</section>
+<script>
+    (function () {
+        var wrap = document.getElementById('chat-messages');
+        if (wrap) wrap.scrollTop = wrap.scrollHeight;
+    })();
+</script>
+{% endblock %}

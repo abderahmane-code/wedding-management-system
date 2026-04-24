@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}My profile — Wedding Management{% endblock %}
+{% block page_title %}My profile{% endblock %}
+{% block page_actions %}
+    <a class="btn btn-primary" href="{% url 'profiles:edit' %}">Edit profile</a>
+{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <div class="profile-card profile-card-self">
+        <div class="profile-photo">
+            {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="{{ profile.display_name }}">
+            {% else %}
+                <div class="profile-photo-placeholder">{{ profile.display_name|slice:":1"|upper }}</div>
+            {% endif %}
+        </div>
+        <div class="profile-body">
+            <h2>{{ profile.display_name }}</h2>
+            <div class="profile-meta">
+                {% if profile.age %}<span>{{ profile.age }} years</span>{% endif %}
+                {% if profile.city %}<span>{{ profile.city }}</span>{% endif %}
+            </div>
+            <p class="profile-bio">{{ profile.bio|default:"No bio yet — tell others about yourself!"|linebreaksbr }}</p>
+            <dl class="profile-privacy">
+                <dt>Discoverable</dt><dd>{% if profile.is_discoverable %}Yes{% else %}No (hidden from Browse){% endif %}</dd>
+                <dt>Show age</dt><dd>{% if profile.show_age %}Yes{% else %}No{% endif %}</dd>
+                <dt>Show city</dt><dd>{% if profile.show_city %}Yes{% else %}No{% endif %}</dd>
+                <dt>Show bio</dt><dd>{% if profile.show_bio %}Yes{% else %}No{% endif %}</dd>
+                <dt>Show photo</dt><dd>{% if profile.show_photo %}Yes{% else %}No{% endif %}</dd>
+            </dl>
+        </div>
+    </div>
+</section>
+{% endblock %}

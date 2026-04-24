@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ view.display_name }} — Profile{% endblock %}
+{% block page_title %}{{ view.display_name }}{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <article class="profile-card profile-card-detail">
+        <div class="profile-photo">
+            {% if view.photo %}
+                <img src="{{ view.photo }}" alt="{{ view.display_name }}">
+            {% elif 'photo' in view %}
+                <div class="profile-photo-placeholder">{{ view.display_name|slice:":1"|upper }}</div>
+            {% else %}
+                <div class="profile-photo-placeholder muted">photo hidden</div>
+            {% endif %}
+        </div>
+        <div class="profile-body">
+            <h2>{{ view.display_name }}</h2>
+            <div class="profile-meta">
+                {% if view.age %}<span>{{ view.age }} years</span>{% elif 'age' in view %}<span class="muted">Age hidden</span>{% endif %}
+                {% if view.city %}<span>{{ view.city }}</span>{% elif 'city' in view %}<span class="muted">City hidden</span>{% endif %}
+            </div>
+            {% if view.bio %}
+                <p class="profile-bio">{{ view.bio|linebreaksbr }}</p>
+            {% elif 'bio' in view %}
+                <p class="profile-bio muted">Bio hidden until you match.</p>
+            {% endif %}
+
+            {% if matched %}
+                <div class="badge badge-success">Matched</div>
+                <div class="form-actions">
+                    {% for m in other.matches_as_low.all %}
+                        {% if m.user_high == request.user %}
+                            <a href="{% url 'chat:thread' m.id %}" class="btn btn-primary">Open chat</a>
+                        {% endif %}
+                    {% endfor %}
+                    {% for m in other.matches_as_high.all %}
+                        {% if m.user_low == request.user %}
+                            <a href="{% url 'chat:thread' m.id %}" class="btn btn-primary">Open chat</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% elif already_liked %}
+                <div class="badge badge-muted">Like sent — waiting for them to like you back</div>
+                <form method="post" action="{% url 'matches:unlike' other.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-ghost">Withdraw like</button>
+                </form>
+            {% else %}
+                <form method="post" action="{% url 'matches:like' other.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="btn btn-primary">Like</button>
+                </form>
+            {% endif %}
+        </div>
+    </article>
+</section>
+{% endblock %}
