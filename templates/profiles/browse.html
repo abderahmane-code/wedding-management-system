@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Browse profiles — Wedding Management{% endblock %}
+{% block page_title %}Browse profiles{% endblock %}
+
+{% block content %}
+<section class="filters">
+    <form method="get" class="inline-form">
+        <input type="text" name="city" value="{{ city_filter }}" placeholder="Filter by city" class="form-control">
+        <button type="submit" class="btn btn-ghost">Filter</button>
+        {% if city_filter %}<a href="{% url 'profiles:browse' %}" class="btn btn-link">Clear</a>{% endif %}
+    </form>
+</section>
+
+{% if cards %}
+<section class="card-grid">
+    {% for entry in cards %}
+        {% with p=entry.profile v=entry.view %}
+        <article class="profile-card profile-card-browse">
+            <div class="profile-photo">
+                {% if v.photo %}
+                    <img src="{{ v.photo }}" alt="{{ v.display_name }}">
+                {% else %}
+                    <div class="profile-photo-placeholder">{{ v.display_name|slice:":1"|upper }}</div>
+                {% endif %}
+            </div>
+            <div class="profile-body">
+                <h3><a href="{% url 'profiles:detail' p.user_id %}">{{ v.display_name }}</a></h3>
+                <div class="profile-meta">
+                    {% if v.age %}<span>{{ v.age }} years</span>{% elif 'age' in v %}<span class="muted">Age hidden</span>{% endif %}
+                    {% if v.city %}<span>{{ v.city }}</span>{% elif 'city' in v %}<span class="muted">City hidden</span>{% endif %}
+                </div>
+                {% if v.bio %}<p class="profile-bio">{{ v.bio|truncatewords:20 }}</p>{% endif %}
+                <form method="post" action="{% url 'matches:like' p.user_id %}" class="profile-actions">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <a href="{% url 'profiles:detail' p.user_id %}" class="btn btn-ghost">View</a>
+                    <button type="submit" class="btn btn-primary">Like</button>
+                </form>
+            </div>
+        </article>
+        {% endwith %}
+    {% endfor %}
+</section>
+{% else %}
+<div class="empty-state">
+    <h3>No profiles to show</h3>
+    <p>Either no one else is here yet, everyone's been liked already, or your filter returned nothing. Try clearing the filter.</p>
+</div>
+{% endif %}
+{% endblock %}

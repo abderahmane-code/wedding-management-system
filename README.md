@@ -4,23 +4,30 @@ A full-stack Django + PostgreSQL application for managing weddings end-to-end: c
 
 ## Features
 
-- **Authentication** — admin login/logout, secure sessions, `@login_required` on every CRUD page.
+### Wedding management
+- **Authentication** — login/logout, secure sessions, `@login_required` on every CRUD page.
 - **Dashboard** — total weddings, clients, guests, services, payments; global budget overview; upcoming weddings and upcoming planning events; recent payments.
 - **Weddings** — full CRUD (bride / groom / date / location / status / budget / notes).
-- **Clients** — full CRUD, each client linked to a wedding with a role (bride, groom, parent, planner, other).
-- **Guests** — full CRUD with RSVP status (pending / confirmed / absent) and plus-one count.
-- **Services** — full CRUD across categories (venue, catering, decoration, photography, music, other) with status tracking.
-- **Budget & Payments** — per-wedding total budget, paid amount, remaining amount, full payment history.
-- **Planning / Schedule** — per-wedding event list (title, date, time, location, notes).
+- **Clients / Guests / Services / Payments / Planning** — full CRUD across 6 linked modules.
 - **Admin** — every model registered with list filters, search, autocomplete on FKs, date hierarchies.
-- **UI** — responsive layout, sidebar navigation, dashboard cards, filterable data tables, clean form pages with validation, wedding-themed color palette (blush, rose, cream, gold).
+
+### Matchmaking
+- **Registration** at `/accounts/register/` — any visitor can create an account.
+- **Profiles** — age, city, bio, profile picture, with per-field **privacy flags** (`show_age`, `show_city`, `show_bio`, `show_photo`) plus an `is_discoverable` toggle.
+- **Browse** — swipe-style card grid at `/profiles/browse/` showing only discoverable profiles you haven't already liked or matched. Privacy flags determine what's visible pre-match.
+- **Like → Match** — mutual likes auto-create a normalized `Match` row (stored once per pair) and unlock chat.
+- **Chat** — per-match thread at `/chat/<match_id>/`. Sending or reading messages without a Match returns 404.
+
+### UI
+- Responsive layout, sidebar navigation grouped into *wedding management* and *matchmaking* sections.
+- Wedding-themed palette (blush, rose, cream, gold) with Cormorant Garamond + Inter, profile-card grid, chat bubbles.
 
 ## Tech stack
 
 - Python 3.10+ / Django 5.0
 - PostgreSQL (with a SQLite fallback via `USE_SQLITE=1` for quick demos)
 - Django templates + vanilla HTML / CSS / JavaScript
-- `django-widget-tweaks`, `psycopg` (v3), `python-dotenv`
+- `django-widget-tweaks`, `psycopg` (v3), `python-dotenv`, `Pillow` (for profile pictures)
 
 ## Project structure
 
@@ -38,11 +45,17 @@ wedding-management-system/
 ├── services/               # Wedding services (venue, catering, …)
 ├── payments/               # Budget & payment history
 ├── planning/               # Planning / schedule events
+├── profiles/               # Matchmaking profile, registration, browse
+├── matches/                # Like + Match models (mutual-like flow)
+├── chat/                   # Messages between matched users
 ├── templates/              # Global templates + base.html (sidebar layout)
 │   ├── base.html
 │   ├── accounts/login.html
 │   ├── core/dashboard.html
-│   └── <app>/…              # list / form / detail / delete per app
+│   ├── profiles/…            # register / self / edit / browse / detail
+│   ├── matches/list.html
+│   ├── chat/list.html + thread.html
+│   └── <wedding-app>/…       # list / form / detail / delete per app
 └── static/
     ├── css/style.css       # Wedding-themed styling
     └── js/app.js           # Sidebar toggle, alert auto-dismiss, confirms
@@ -53,11 +66,18 @@ wedding-management-system/
 All non-user models live in their own app and use Django's ORM.
 
 ```
+# Wedding domain
 Wedding (1) ── (N) Client
 Wedding (1) ── (N) Guest
 Wedding (1) ── (N) Service
 Wedding (1) ── (N) Payment ─(N) ── (1) Service   (service is optional)
 Wedding (1) ── (N) PlanningEvent
+
+# Matchmaking domain
+User (1) ─── (1) Profile                    (auto-created via post_save signal)
+User (N) ─── (N) User via Like              (directional: from_user → to_user)
+User (N) ─── (N) User via Match             (normalized pair: user_low.id < user_high.id)
+Match (1) ── (N) Message                    (chat is bound to Match, so no Match → no Message)
 ```
 
 Full field list lives in `<app>/models.py` and `<app>/migrations/0001_initial.py`.
@@ -190,18 +210,35 @@ Open **<http://127.0.0.1:8000/>**. You'll be redirected to `/accounts/login/` �
 python manage.py collectstatic --noinput
 ```
 
+### 9. Media files (profile pictures)
+
+Profile pictures upload to `MEDIA_ROOT = BASE_DIR / "media/"` (configurable in `settings.py`). In development, `wedding_project/urls.py` auto-serves `/media/` when `DEBUG=True`. For production, configure your web server (Nginx/Apache/S3) to serve `MEDIA_URL` separately and set `MEDIA_ROOT` to a persistent location.
+
 ---
 
 ## Key URLs
 
+### Wedding management
 | URL | What it is |
 | --- | --- |
 | `/` | Redirects to dashboard (or login if anonymous) |
-| `/accounts/login/`, `/accounts/logout/` | Auth |
+| `/accounts/login/`, `/accounts/logout/`, `/accounts/register/` | Auth + registration |
 | `/dashboard/` | Custom dashboard with counts, budget overview, upcoming events, recent payments |
 | `/weddings/`, `/weddings/new/`, `/weddings/<id>/` | Wedding list / create / detail |
 | `/clients/`, `/guests/`, `/services/`, `/payments/`, `/planning/` | Same list / create / detail / edit / delete pattern per app |
 | `/admin/` | Django Admin (every model registered) |
+
+### Matchmaking
+| URL | What it is |
+| --- | --- |
+| `/profiles/me/`, `/profiles/me/edit/` | Your profile + edit (age, city, bio, photo, privacy) |
+| `/profiles/browse/?city=<name>` | Discoverable profiles you haven't liked / matched, optional city filter |
+| `/profiles/<user_id>/` | Public profile — honors privacy flags until you match |
+| `/matches/` | All your mutual matches |
+| `/matches/like/<user_id>/` | POST to like someone (mutual likes auto-create a Match) |
+| `/matches/unlike/<user_id>/` | POST to withdraw a like (only while no Match exists yet) |
+| `/chat/` | List of conversations (one per match) |
+| `/chat/<match_id>/` | Thread: send + read messages. Returns 404 if you're not in the match. |
 
 Deep-link shortcuts used by the wedding detail page: `/services/new/?wedding=<id>`, `/clients/new/?wedding=<id>`, etc. — the wedding is preselected in the form.
 

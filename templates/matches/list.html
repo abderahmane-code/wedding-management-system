@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Matches — Wedding Management{% endblock %}
+{% block page_title %}Matches{% endblock %}
+{% block page_actions %}
+    <a href="{% url 'profiles:browse' %}" class="btn btn-primary">Browse profiles</a>
+{% endblock %}
+
+{% block content %}
+{% if entries %}
+<section class="card-grid">
+    {% for entry in entries %}
+        {% with other=entry.other match=entry.match %}
+        <article class="profile-card profile-card-match">
+            <div class="profile-photo">
+                {% if other.profile.profile_picture %}
+                    <img src="{{ other.profile.profile_picture.url }}" alt="{{ other.profile.display_name }}">
+                {% else %}
+                    <div class="profile-photo-placeholder">{{ other.profile.display_name|slice:":1"|upper }}</div>
+                {% endif %}
+            </div>
+            <div class="profile-body">
+                <h3>{{ other.profile.display_name }}</h3>
+                <div class="profile-meta">
+                    {% if other.profile.age %}<span>{{ other.profile.age }} years</span>{% endif %}
+                    {% if other.profile.city %}<span>{{ other.profile.city }}</span>{% endif %}
+                </div>
+                {% if entry.last_message %}
+                    <p class="profile-bio muted">{{ entry.last_message.sender.username }}: {{ entry.last_message.content|truncatewords:12 }}</p>
+                {% else %}
+                    <p class="profile-bio muted">No messages yet — say hi!</p>
+                {% endif %}
+                <div class="form-actions">
+                    <a href="{% url 'profiles:detail' other.id %}" class="btn btn-ghost">View profile</a>
+                    <a href="{% url 'chat:thread' match.id %}" class="btn btn-primary">Open chat</a>
+                </div>
+                <small class="muted">Matched {{ match.created_at|date:"M j, Y" }}</small>
+            </div>
+        </article>
+        {% endwith %}
+    {% endfor %}
+</section>
+{% else %}
+<div class="empty-state">
+    <h3>No matches yet</h3>
+    <p>Start liking profiles from the <a href="{% url 'profiles:browse' %}">Browse</a> page — when someone you liked likes you back, you'll land here.</p>
+</div>
+{% endif %}
+{% endblock %}

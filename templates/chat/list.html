@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Chat — Wedding Management{% endblock %}
+{% block page_title %}Chat{% endblock %}
+
+{% block content %}
+{% if threads %}
+<section class="chat-list">
+    {% for t in threads %}
+    <a href="{% url 'chat:thread' t.match.id %}" class="chat-row">
+        <div class="chat-row-avatar">
+            {% if t.other.profile.profile_picture %}
+                <img src="{{ t.other.profile.profile_picture.url }}" alt="{{ t.other.profile.display_name }}">
+            {% else %}
+                <div class="profile-photo-placeholder">{{ t.other.profile.display_name|slice:":1"|upper }}</div>
+            {% endif %}
+        </div>
+        <div class="chat-row-body">
+            <div class="chat-row-head">
+                <span class="chat-row-name">{{ t.other.profile.display_name }}</span>
+                {% if t.last %}<span class="muted">{{ t.last.created_at|date:"M j, H:i" }}</span>{% endif %}
+            </div>
+            <div class="chat-row-preview">
+                {% if t.last %}
+                    <span>{{ t.last.sender.username }}: {{ t.last.content|truncatewords:15 }}</span>
+                {% else %}
+                    <span class="muted">No messages yet</span>
+                {% endif %}
+                {% if t.unread %}<span class="badge badge-success">{{ t.unread }}</span>{% endif %}
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</section>
+{% else %}
+<div class="empty-state">
+    <h3>No conversations yet</h3>
+    <p>Chat unlocks once you have a mutual match. Head to <a href="{% url 'profiles:browse' %}">Browse</a> to get started.</p>
+</div>
+{% endif %}
+{% endblock %}
