@@ -17,6 +17,8 @@ urlpatterns = [
     path("profiles/", include(("profiles.urls", "profiles"), namespace="profiles")),
     path("matches/", include(("matches.urls", "matches"), namespace="matches")),
     path("chat/", include(("chat.urls", "chat"), namespace="chat")),
+    path("blocks/", include(("blocks.urls", "blocks"), namespace="blocks")),
+    path("notifications/", include(("notifications.urls", "notifications"), namespace="notifications")),
     path("", include(("core.urls", "core"), namespace="core")),
 ]
 

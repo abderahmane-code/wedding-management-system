@@ -21,6 +21,20 @@ def sidebar_nav(request):
         {"label": "Browse", "url": reverse("profiles:browse"), "icon": "search", "match": "/profiles/browse"},
         {"label": "Matches", "url": reverse("matches:list"), "icon": "spark", "match": "/matches"},
         {"label": "Chat", "url": reverse("chat:list"), "icon": "message", "match": "/chat"},
+        {"label": "Notifications", "url": reverse("notifications:list"), "icon": "bell", "match": "/notifications"},
+        {"label": "Blocked", "url": reverse("blocks:list"), "icon": "shield", "match": "/blocks"},
         {"label": "My profile", "url": reverse("profiles:self"), "icon": "user", "match": "/profiles/me"},
     ]
     return {"sidebar_items": items, "sidebar_matchmaking_items": matchmaking_items}
+
+
+def notification_badge(request):
+    """Expose unread notification count so the sidebar can render a badge."""
+    if not getattr(request, "user", None) or not request.user.is_authenticated:
+        return {"unread_notifications": 0}
+    try:
+        from notifications.models import Notification
+    except ImportError:
+        return {"unread_notifications": 0}
+    count = Notification.objects.filter(user=request.user, is_read=False).count()
+    return {"unread_notifications": count}
