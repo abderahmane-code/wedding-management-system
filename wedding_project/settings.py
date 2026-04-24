@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     "profiles",
     "matches",
     "chat",
+    "blocks",
+    "notifications",
 ]
 
 MIDDLEWARE = [
@@ -84,6 +86,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.sidebar_nav",
+                "core.context_processors.notification_badge",
             ],
         },
     },

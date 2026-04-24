@@ -9,16 +9,40 @@
 {% block content %}
 <section class="chat-thread">
     <div class="chat-messages" id="chat-messages">
-        {% for m in messages_list %}
-            <div class="chat-message {% if m.sender == request.user %}chat-message-self{% else %}chat-message-other{% endif %}">
-                <div class="chat-bubble">{{ m.content|linebreaksbr }}</div>
-                <div class="chat-timestamp">{{ m.created_at|date:"M j, H:i" }}</div>
-            </div>
-        {% empty %}
+        {% if messages_list %}
+            {% regroup messages_list by created_at|date:"Y-m-d" as days %}
+            {% for day in days %}
+                <div class="chat-day-separator">
+                    <span>{{ day.list.0.created_at|date:"l, F j, Y" }}</span>
+                </div>
+                {% for m in day.list %}
+                    <div class="chat-message {% if m.sender == request.user %}chat-message-self{% else %}chat-message-other{% endif %}">
+                        {% if m.sender != request.user %}
+                            <div class="chat-avatar">
+                                {% if other.profile.profile_picture %}
+                                    <img src="{{ other.profile.profile_picture.url }}" alt="{{ other.profile.display_name }}">
+                                {% else %}
+                                    <div class="profile-photo-placeholder">{{ other.profile.display_name|slice:":1"|upper }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        <div class="chat-bubble-wrap">
+                            <div class="chat-bubble">{{ m.content|linebreaksbr }}</div>
+                            <div class="chat-timestamp">
+                                {{ m.created_at|date:"H:i" }}
+                                {% if m.sender == request.user and m.read_at %}
+                                    <span class="chat-read" title="Read at {{ m.read_at|date:'M j, H:i' }}">· Read</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
             <div class="empty-state">
                 <p>No messages yet — send the first one.</p>
             </div>
-        {% endfor %}
+        {% endif %}
     </div>
     <form method="post" class="chat-compose">
         {% csrf_token %}

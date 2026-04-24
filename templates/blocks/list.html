@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Blocked users — Wedding Management{% endblock %}
+{% block page_title %}Blocked users{% endblock %}
+
+{% block content %}
+{% if blocks %}
+<section class="chat-list">
+    {% for b in blocks %}
+    <div class="chat-row" style="cursor:default">
+        <div class="chat-row-avatar">
+            {% if b.to_user.profile.profile_picture %}
+                <img src="{{ b.to_user.profile.profile_picture.url }}" alt="{{ b.to_user.username }}">
+            {% else %}
+                <div class="profile-photo-placeholder">{{ b.to_user.username|slice:":1"|upper }}</div>
+            {% endif %}
+        </div>
+        <div class="chat-row-body">
+            <div class="chat-row-head">
+                <span class="chat-row-name">{{ b.to_user.profile.display_name|default:b.to_user.username }}</span>
+                <span class="muted">Blocked {{ b.created_at|date:"M j, Y" }}</span>
+            </div>
+            <div class="chat-row-preview">
+                <span class="muted">They're hidden from Browse and can't open your profile.</span>
+                <form method="post" action="{% url 'blocks:unblock' b.to_user.id %}" style="display:inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-ghost btn-sm">Unblock</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+{% else %}
+<div class="empty-state">
+    <h3>No one blocked</h3>
+    <p>When you block someone from their profile page, they'll appear here so you can undo it later.</p>
+</div>
+{% endif %}
+{% endblock %}

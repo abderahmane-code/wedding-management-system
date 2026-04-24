@@ -14,6 +14,11 @@ from matches.models import Match
 from .forms import MessageForm
 from .models import Message
 
+try:
+    from blocks.models import Block
+except ImportError:  # pragma: no cover
+    Block = None
+
 
 class ChatListView(LoginRequiredMixin, ListView):
     template_name = "chat/list.html"
@@ -49,6 +54,19 @@ class ChatThreadView(LoginRequiredMixin, DetailView):
             "user_low__profile", "user_high__profile"
         )
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self._blocked(self.object):
+            raise Http404("Chat unavailable.")
+        return super().get(request, *args, **kwargs)
+
+    def _blocked(self, match: Match) -> bool:
+        if Block is None:
+            return False
+        return Block.objects.are_blocked(
+            self.request.user, match.other_user(self.request.user)
+        )
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         match: Match = ctx["match"]
@@ -69,6 +87,8 @@ class ChatThreadView(LoginRequiredMixin, DetailView):
         match: Match = self.object
         if not match.involves(request.user):
             raise Http404("Not your match.")
+        if self._blocked(match):
+            raise Http404("Chat unavailable.")
         form = MessageForm(request.POST)
         if form.is_valid():
             Message.objects.create(

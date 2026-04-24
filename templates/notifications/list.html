@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Notifications — Wedding Management{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block page_actions %}
+    {% if notifications %}
+    <form method="post" action="{% url 'notifications:mark_all_read' %}" style="display:inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-ghost">Mark all read</button>
+    </form>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+{% if notifications %}
+<section class="notification-list">
+    {% for n in notifications %}
+    <a href="{{ n.url|default:'#' }}" class="notification-row{% if not n.is_read %} is-unread{% endif %}">
+        <div class="notification-dot notification-dot-{{ n.kind }}">
+            {% if n.kind == 'match' %}&#128153;{% elif n.kind == 'like' %}&#128155;{% else %}&#128172;{% endif %}
+        </div>
+        <div class="notification-body">
+            <div class="notification-title">{{ n.title }}</div>
+            {% if n.body %}<div class="notification-text">{{ n.body }}</div>{% endif %}
+            <div class="notification-time">{{ n.created_at|date:"M j, Y · H:i" }}</div>
+        </div>
+    </a>
+    {% endfor %}
+</section>
+
+{% if is_paginated %}
+<nav class="pagination" style="margin-top:16px">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="btn btn-ghost btn-sm">Previous</a>{% endif %}
+    <span class="muted">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="btn btn-ghost btn-sm">Next</a>{% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <h3>No notifications yet</h3>
+    <p>You'll get a notification here when someone likes you back or sends you a message.</p>
+</div>
+{% endif %}
+{% endblock %}
