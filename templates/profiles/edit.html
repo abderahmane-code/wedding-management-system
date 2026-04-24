@@ -9,14 +9,36 @@
         {% if form.non_field_errors %}
             <div class="alert alert-error">{{ form.non_field_errors }}</div>
         {% endif %}
+
+        <div class="photo-preview-row">
+            <div class="photo-preview" id="photo-preview">
+                {% if form.instance.profile_picture %}
+                    <img id="photo-preview-img" src="{{ form.instance.profile_picture.url }}" alt="Current photo">
+                {% else %}
+                    <img id="photo-preview-img" src="" alt="Preview" style="display:none">
+                    <div id="photo-preview-placeholder" class="profile-photo-placeholder">
+                        {{ user.username|slice:":1"|upper }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="photo-preview-hint">
+                <strong>Profile picture</strong>
+                <small class="form-help">JPEG / PNG / WEBP, up to 5 MB. Images larger than 800 px are resized automatically.</small>
+                {{ form.profile_picture }}
+                {% if form.profile_picture.errors %}<div class="field-error">{{ form.profile_picture.errors }}</div>{% endif %}
+            </div>
+        </div>
+
         <div class="form-grid">
             {% for field in form %}
+                {% if field.name != 'profile_picture' %}
                 <div class="form-group{% if field.name in 'show_age show_city show_bio show_photo is_discoverable' %} form-group-check{% endif %}">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
                     {% if field.help_text %}<small class="form-help">{{ field.help_text|safe }}</small>{% endif %}
                     {% if field.errors %}<div class="field-error">{{ field.errors }}</div>{% endif %}
                 </div>
+                {% endif %}
             {% endfor %}
         </div>
         <div class="form-actions">
@@ -25,4 +47,24 @@
         </div>
     </form>
 </section>
+
+<script>
+(function () {
+    var input = document.getElementById("id_profile_picture");
+    if (!input) return;
+    var img = document.getElementById("photo-preview-img");
+    var placeholder = document.getElementById("photo-preview-placeholder");
+    input.addEventListener("change", function (e) {
+        var file = e.target.files && e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+            img.src = ev.target.result;
+            img.style.display = "block";
+            if (placeholder) placeholder.style.display = "none";
+        };
+        reader.readAsDataURL(file);
+    });
+})();
+</script>
 {% endblock %}

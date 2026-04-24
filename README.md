@@ -13,10 +13,12 @@ A full-stack Django + PostgreSQL application for managing weddings end-to-end: c
 
 ### Matchmaking
 - **Registration** at `/accounts/register/` — any visitor can create an account.
-- **Profiles** — age, city, bio, profile picture, with per-field **privacy flags** (`show_age`, `show_city`, `show_bio`, `show_photo`) plus an `is_discoverable` toggle.
-- **Browse** — swipe-style card grid at `/profiles/browse/` showing only discoverable profiles you haven't already liked or matched. Privacy flags determine what's visible pre-match.
+- **Profiles** — age, city, bio, profile picture, with per-field **privacy flags** (`show_age`, `show_city`, `show_bio`, `show_photo`) plus an `is_discoverable` toggle. Uploads are capped at 5 MB and **auto-resized to 800×800** (Pillow) at save time; the edit page shows a live client-side preview as soon as a file is picked.
+- **Browse** — card grid at `/profiles/browse/` filtered by `city` and `age_min`/`age_max`. Shows only discoverable profiles you haven't already liked, matched, or blocked (either direction). Privacy flags determine what's visible pre-match, and hidden fields render muted indicators (e.g. "Bio hidden until you match.").
 - **Like → Match** — mutual likes auto-create a normalized `Match` row (stored once per pair) and unlock chat.
-- **Chat** — per-match thread at `/chat/<match_id>/`. Sending or reading messages without a Match returns 404.
+- **Chat** — per-match thread at `/chat/<match_id>/` with avatars per bubble, day separators, and read receipts. Sending or reading messages without a Match — or after either side has blocked the other — returns 404.
+- **Block / Unblock** — from any profile detail page; blocked users disappear from Browse both ways, can't be liked, and existing chat threads return 404 until unblocked. Manage your list at `/blocks/`.
+- **Notifications** — in-app feed at `/notifications/` (sidebar badge shows unread count). Currently triggered on mutual match; extensible to likes/messages via `Notification` rows.
 
 ### UI
 - Responsive layout, sidebar navigation grouped into *wedding management* and *matchmaking* sections.

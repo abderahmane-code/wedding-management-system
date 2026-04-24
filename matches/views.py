@@ -12,6 +12,16 @@ from django.views.generic import ListView, View
 
 from .models import Like, Match
 
+try:
+    from blocks.models import Block
+except ImportError:  # pragma: no cover
+    Block = None
+
+try:
+    from notifications.models import Notification
+except ImportError:  # pragma: no cover
+    Notification = None
+
 
 class MatchListView(LoginRequiredMixin, ListView):
     template_name = "matches/list.html"
@@ -42,6 +52,11 @@ class LikeUserView(LoginRequiredMixin, View):
 
         target = get_object_or_404(User, pk=user_id)
 
+        # Refuse to like across a block in either direction.
+        if Block is not None and Block.objects.are_blocked(request.user, target):
+            messages.error(request, "You can't like this person.")
+            return redirect("profiles:browse")
+
         with transaction.atomic():
             try:
                 Like.objects.create(from_user=request.user, to_user=target)
@@ -53,7 +68,8 @@ class LikeUserView(LoginRequiredMixin, View):
                 from_user=target, to_user=request.user
             ).exists()
             if reverse_like:
-                Match.ensure_pair(request.user, target)
+                match = Match.ensure_pair(request.user, target)
+                _notify_match(request.user, target, match)
                 messages.success(
                     request,
                     f"It's a match with {target.get_full_name() or target.username}!",
@@ -68,6 +84,22 @@ class LikeUserView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         return HttpResponseNotAllowed(["POST"])
+
+
+def _notify_match(user_a, user_b, match) -> None:
+    """Create a Notification row for each participant in a newly-created match."""
+    if Notification is None:
+        return
+    chat_url = reverse("chat:thread", args=[match.id])
+    for owner, other in ((user_a, user_b), (user_b, user_a)):
+        other_name = other.get_full_name() or other.username
+        Notification.objects.create(
+            user=owner,
+            kind=Notification.KIND_MATCH,
+            title=f"It's a match with {other_name}!",
+            body="You can now chat with each other.",
+            url=chat_url,
+        )
 
 
 class UnlikeUserView(LoginRequiredMixin, View):

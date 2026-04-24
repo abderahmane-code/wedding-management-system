@@ -8,21 +8,21 @@
         <div class="profile-photo">
             {% if view.photo %}
                 <img src="{{ view.photo }}" alt="{{ view.display_name }}">
-            {% elif 'photo' in view %}
-                <div class="profile-photo-placeholder">{{ view.display_name|slice:":1"|upper }}</div>
-            {% else %}
+            {% elif view.photo_hidden %}
                 <div class="profile-photo-placeholder muted">photo hidden</div>
+            {% else %}
+                <div class="profile-photo-placeholder">{{ view.display_name|slice:":1"|upper }}</div>
             {% endif %}
         </div>
         <div class="profile-body">
             <h2>{{ view.display_name }}</h2>
             <div class="profile-meta">
-                {% if view.age %}<span>{{ view.age }} years</span>{% elif 'age' in view %}<span class="muted">Age hidden</span>{% endif %}
-                {% if view.city %}<span>{{ view.city }}</span>{% elif 'city' in view %}<span class="muted">City hidden</span>{% endif %}
+                {% if view.age %}<span>{{ view.age }} years</span>{% elif view.age_hidden %}<span class="muted">Age hidden</span>{% endif %}
+                {% if view.city %}<span>{{ view.city }}</span>{% elif view.city_hidden %}<span class="muted">City hidden</span>{% endif %}
             </div>
             {% if view.bio %}
                 <p class="profile-bio">{{ view.bio|linebreaksbr }}</p>
-            {% elif 'bio' in view %}
+            {% elif view.bio_hidden %}
                 <p class="profile-bio muted">Bio hidden until you match.</p>
             {% endif %}
 
@@ -53,6 +53,23 @@
                     <button type="submit" class="btn btn-primary">Like</button>
                 </form>
             {% endif %}
+
+            <div class="profile-meta-actions">
+                {% if i_blocked %}
+                    <form method="post" action="{% url 'blocks:unblock' other.id %}" style="display:inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit" class="btn btn-link">Unblock</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'blocks:block' other.id %}" style="display:inline"
+                          onsubmit="return confirm('Block {{ view.display_name }}? They will be hidden from you and you from them.');">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'profiles:browse' %}">
+                        <button type="submit" class="btn btn-link muted">Block user</button>
+                    </form>
+                {% endif %}
+            </div>
         </div>
     </article>
 </section>
