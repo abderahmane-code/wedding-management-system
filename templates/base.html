@@ -36,6 +36,9 @@
                                class="sidebar-link{% if item.match in request.path %} is-active{% endif %}">
                                 <span class="sidebar-icon" data-icon="{{ item.icon }}"></span>
                                 <span>{{ item.label }}</span>
+                                {% if item.match == '/notifications' and unread_notifications %}
+                                    <span class="nav-badge">{{ unread_notifications }}</span>
+                                {% endif %}
                             </a>
                         {% endfor %}
                     {% endif %}

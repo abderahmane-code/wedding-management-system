@@ -52,17 +52,33 @@ class Profile(models.Model):
         return self.user.get_full_name() or self.user.username
 
     def public_view(self, matched: bool) -> dict:
-        """Return only the fields visible to a viewer, given match state."""
-        data = {"display_name": self.display_name}
-        if matched or self.show_age:
-            data["age"] = self.age
-        if matched or self.show_city:
-            data["city"] = self.city
-        if matched or self.show_bio:
-            data["bio"] = self.bio
-        if matched or self.show_photo:
-            data["photo"] = self.profile_picture.url if self.profile_picture else ""
-        return data
+        """Return the viewer-facing dict for this profile given match state.
+
+        Every key is always present so templates can distinguish between
+        "field empty" and "field hidden by a privacy flag" via the ``*_hidden``
+        booleans — which is what powers the "Bio hidden until you match."
+        muted indicator.
+        """
+        age_visible = matched or self.show_age
+        city_visible = matched or self.show_city
+        bio_visible = matched or self.show_bio
+        photo_visible = matched or self.show_photo
+        photo_url = (
+            self.profile_picture.url
+            if photo_visible and self.profile_picture
+            else ""
+        )
+        return {
+            "display_name": self.display_name,
+            "age": self.age if age_visible else None,
+            "age_hidden": not age_visible,
+            "city": self.city if city_visible else "",
+            "city_hidden": not city_visible,
+            "bio": self.bio if bio_visible else "",
+            "bio_hidden": not bio_visible,
+            "photo": photo_url,
+            "photo_hidden": not photo_visible,
+        }
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

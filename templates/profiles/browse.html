@@ -5,9 +5,13 @@
 {% block content %}
 <section class="filters">
     <form method="get" class="inline-form">
-        <input type="text" name="city" value="{{ city_filter }}" placeholder="Filter by city" class="form-control">
+        <input type="text" name="city" value="{{ city_filter }}" placeholder="City" class="form-control">
+        <input type="number" name="age_min" min="18" max="120" value="{{ age_min_filter }}" placeholder="Min age" class="form-control form-control-sm">
+        <input type="number" name="age_max" min="18" max="120" value="{{ age_max_filter }}" placeholder="Max age" class="form-control form-control-sm">
         <button type="submit" class="btn btn-ghost">Filter</button>
-        {% if city_filter %}<a href="{% url 'profiles:browse' %}" class="btn btn-link">Clear</a>{% endif %}
+        {% if city_filter or age_min_filter or age_max_filter %}
+            <a href="{% url 'profiles:browse' %}" class="btn btn-link">Clear</a>
+        {% endif %}
     </form>
 </section>
 
@@ -26,10 +30,14 @@
             <div class="profile-body">
                 <h3><a href="{% url 'profiles:detail' p.user_id %}">{{ v.display_name }}</a></h3>
                 <div class="profile-meta">
-                    {% if v.age %}<span>{{ v.age }} years</span>{% elif 'age' in v %}<span class="muted">Age hidden</span>{% endif %}
-                    {% if v.city %}<span>{{ v.city }}</span>{% elif 'city' in v %}<span class="muted">City hidden</span>{% endif %}
+                    {% if v.age %}<span>{{ v.age }} years</span>{% elif v.age_hidden %}<span class="muted">Age hidden</span>{% endif %}
+                    {% if v.city %}<span>{{ v.city }}</span>{% elif v.city_hidden %}<span class="muted">City hidden</span>{% endif %}
                 </div>
-                {% if v.bio %}<p class="profile-bio">{{ v.bio|truncatewords:20 }}</p>{% endif %}
+                {% if v.bio %}
+                    <p class="profile-bio">{{ v.bio|truncatewords:20 }}</p>
+                {% elif v.bio_hidden %}
+                    <p class="profile-bio muted">Bio hidden until you match.</p>
+                {% endif %}
                 <form method="post" action="{% url 'matches:like' p.user_id %}" class="profile-actions">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">

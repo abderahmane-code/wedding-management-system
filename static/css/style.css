@@ -764,3 +764,125 @@ textarea.form-control { min-height: 90px; resize: vertical; }
     .profile-card-detail .profile-photo, .profile-card-self .profile-photo { width: 100%; height: 220px; }
     .chat-thread { height: calc(100vh - 200px); }
 }
+
+/* -------- Matchmaking extensions -------- */
+
+/* Photo upload preview */
+.photo-preview-row { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 18px; }
+.photo-preview {
+    width: 120px; height: 120px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--blush-soft);
+}
+.photo-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-preview .profile-photo-placeholder { width: 100%; height: 100%; font-size: 2rem; }
+.photo-preview-hint { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.photo-preview-hint strong { font-size: .95rem; }
+.photo-preview-hint input[type="file"] { font-size: .88rem; }
+
+/* Smaller form controls for inline filters */
+.form-control-sm { max-width: 120px; }
+
+/* Sidebar notification badge */
+.nav-badge {
+    margin-left: auto;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--rose);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Notifications list */
+.notification-list { display: flex; flex-direction: column; gap: 8px; }
+.notification-row {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: background .15s ease;
+}
+.notification-row:hover { background: var(--cream); }
+.notification-row.is-unread { background: var(--blush-soft); border-color: var(--blush); }
+.notification-dot {
+    width: 44px; height: 44px;
+    border-radius: 999px;
+    background: var(--gold-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+}
+.notification-dot-match { background: var(--blush); }
+.notification-dot-like { background: var(--gold-soft); }
+.notification-dot-message { background: var(--sage); }
+.notification-title { font-weight: 600; }
+.notification-text { color: var(--muted); font-size: .88rem; margin-top: 2px; }
+.notification-time { color: var(--muted); font-size: .78rem; margin-top: 4px; }
+
+/* Block action in profile detail */
+.profile-meta-actions { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+.profile-meta-actions .btn-link { font-size: .85rem; padding: 0; }
+
+/* Chat thread polish */
+.chat-day-separator {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: .78rem;
+    margin: 6px 0;
+}
+.chat-day-separator::before,
+.chat-day-separator::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+.chat-day-separator span {
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 600;
+}
+.chat-message { flex-direction: row; gap: 8px; max-width: 75%; }
+.chat-message-self { flex-direction: row-reverse; }
+.chat-message-other .chat-bubble-wrap { align-items: flex-start; }
+.chat-message-self .chat-bubble-wrap { align-items: flex-end; }
+.chat-bubble-wrap { display: flex; flex-direction: column; min-width: 0; }
+.chat-avatar {
+    width: 32px; height: 32px;
+    border-radius: 999px;
+    overflow: hidden;
+    flex-shrink: 0;
+    align-self: flex-end;
+    background: var(--blush-soft);
+}
+.chat-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.chat-avatar .profile-photo-placeholder { font-size: .8rem; }
+.chat-read { font-weight: 500; }
+
+/* Buttons: link style + small */
+.btn-link {
+    background: transparent;
+    border: none;
+    color: var(--rose);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+.btn-link.muted { color: var(--muted); }
+.btn-link:hover { color: var(--rose-deep); }
+.btn-sm { padding: 4px 10px; font-size: .82rem; }
